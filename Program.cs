@@ -9,24 +9,44 @@ namespace WebSocketSrvrs
     {
         protected override void OnMessage(MessageEventArgs e)
         {
-            Console.WriteLine("Recieved message from client: " + e.Data);
-            Send(e.Data);
+            try
+            {
+                Console.WriteLine("Recieved message from client: " + e.Data);
+                Send(e.Data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
     }
 
     internal class Program
     {
-        private static void Main(string[] args)
+        public static WebSocketServer wssv { get; set; } = new("ws://172.16.2.43:8080");
+        private static void Main()
         {
-            WebSocketServer wssv = new("ws://127.0.0.1:7889");
+            Listener();
+        }
 
-            wssv.AddWebSocketService<Echo>("/Echo");
+        private static void Listener()
+        {
+            try
+            {
+                wssv.AddWebSocketService<Echo>("/Echo");
 
-            wssv.Start();
-            Console.WriteLine($"WebSocketServer started on ws://127.0.0.1:7889/Echo");
+                wssv.Start();
+                Console.WriteLine($"WebSocketServer started on ws://172.16.2.43:8080/Echo\n Press any key to stop.");
 
-            Console.ReadKey();
-            wssv.Stop();
+                Console.ReadKey();
+                wssv.Stop();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                wssv.Stop();
+                Listener();
+            }
         }
     }
 }
